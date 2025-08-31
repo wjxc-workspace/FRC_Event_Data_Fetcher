@@ -282,6 +282,15 @@ class FRCDataFetcher:
             col_base = 4 + (i - 1) * 3
             for j in range(2, len(teams) + 2):
                 ws.cell(row=j, column=col_base).alignment = Alignment(wrapText=True)
+
+        # Adjust text alignment for better readability
+        for i in range(1, len(teams) + 2):
+            ws.cell(row=i, column=1).alignment = Alignment(horizontal='center')
+        for i in range(1, years_to_fetch + 1):
+            col_base = 2 + (i - 1) * 3
+            for j in range(1, len(teams) + 2):
+                ws.cell(row=j, column=col_base).alignment = Alignment(horizontal='center')
+                ws.cell(row=j, column=col_base + 1).alignment = Alignment(horizontal='center')
         
         wb.save(fullname)
         
