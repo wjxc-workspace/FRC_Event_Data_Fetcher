@@ -31,8 +31,8 @@ The FRC Event Data Fetcher is a Python tool designed to aggregate and analyze FI
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/wjxcws/frc-event-data-fetcher.git
-cd frc-event-data-fetcher
+git clone https://github.com/wjxc-workspace/FRC_Event_Data_Fetcher.git
+cd FRC_Event_Data_Fetcher
 ```
 
 2. **Install required packages**
