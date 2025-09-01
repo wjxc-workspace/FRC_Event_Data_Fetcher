@@ -223,11 +223,21 @@ class FRCDataFetcher:
             List of data items for Excel row
         """
         items = [team_number]
+        total_win_count = 0
+        total_finalist_count = 0
+        total_impact_count = 0
+        total_ei_count = 0
         
         for year in range(start_year, end_year + 1):
             year_data = self.fetch_team_year_data(team_number, year)
+            total_win_count += year_data['awards'].count('Winner')
+            total_finalist_count += year_data['awards'].count('Finalist')
+            total_impact_count += year_data['awards'].count('FIRST Impact Award')
+            total_ei_count += year_data['awards'].count('Engineering Inspiration Award')
             items.extend([year_data['epa'], year_data['rank'], year_data['awards']])
         
+        items.extend([total_win_count, total_finalist_count, total_impact_count, total_ei_count])
+
         return items
     
     def export_to_excel(self, event_year: int, event_code: str, 
@@ -267,30 +277,28 @@ class FRCDataFetcher:
         start_year = event_year - years_to_fetch + 1
         for year in range(start_year, event_year + 1):
             headers.extend([f'{year} EPA', f'{year} Rank', f'{year} Awards'])
+        headers.extend(['Wins', 'Finalists', 'Impact', 'EI'])
         ws.append(headers)
         
         # Adjust column widths for better readability
-        ws.column_dimensions['A'].width = 10
+        ws.column_dimensions['A'].width = 10 # Team number
         for i in range(1, years_to_fetch + 1):
             col_base = 1 + (i - 1) * 3
             ws.column_dimensions[chr(65 + col_base)].width = 12  # EPA
             ws.column_dimensions[chr(65 + col_base + 1)].width = 12  # Rank
-            ws.column_dimensions[chr(65 + col_base + 2)].width = 55  # Awards
+            ws.column_dimensions[chr(65 + col_base + 2)].width = 60  # Awards
+        for i in range (1 + years_to_fetch * 3, 1 + years_to_fetch + 5):
+            ws.column_dimensions[chr(65 + i)].width = 12 # Summary
 
         # Enable text wrapping for better readability
-        for i in range(1, years_to_fetch + 1):
-            col_base = 4 + (i - 1) * 3
-            for j in range(2, len(teams) + 2):
-                ws.cell(row=j, column=col_base).alignment = Alignment(wrapText=True)
+        for i in range(4, years_to_fetch * 3 + 4, 3):
+            for j in range(1, len(teams) + 2):
+                ws.cell(row=j, column=i).alignment = Alignment(wrap_text=True) # Awards
 
         # Adjust text alignment for better readability
-        for i in range(1, len(teams) + 2):
-            ws.cell(row=i, column=1).alignment = Alignment(horizontal='center')
-        for i in range(1, years_to_fetch + 1):
-            col_base = 2 + (i - 1) * 3
+        for i in [col for col in range(1, 1 + years_to_fetch * 3 + 5) if col not in [award_col for award_col in range(4, years_to_fetch * 3 + 4, 3)]]:
             for j in range(1, len(teams) + 2):
-                ws.cell(row=j, column=col_base).alignment = Alignment(horizontal='center')
-                ws.cell(row=j, column=col_base + 1).alignment = Alignment(horizontal='center')
+                ws.cell(row=j, column=i).alignment = Alignment(horizontal='center') # Team number, EPA, Rank, Summary
         
         wb.save(fullname)
         
