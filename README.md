@@ -15,9 +15,7 @@ The FRC Event Data Fetcher is a Python tool designed to aggregate and analyze FI
 - **EPA Statistics**: Includes Expected Points Added (EPA) metrics and rankings
 - **Awards Tracking**: Compiles team awards across events and years
 - **Excel Export**: Generates organized Excel spreadsheets for easy analysis
-- **Parallel Processing**: Utilizes multi-threading for faster data retrieval
-- **Caching System**: Reduces API calls through intelligent caching
-- **Progress Tracking**: Real-time progress updates during data fetching
+- **Deep Search**: Fetchs all teams that participated in the event in the past few years
 
 ## 🚀 Quick Start
 
@@ -77,7 +75,9 @@ You'll be prompted for:
 - **Event year**: The competition year (e.g., 2024)
 - **Event code**: The event identifier (e.g., txhou, casj, micmp)
 - **Your team number**: Optional - your FRC team number for reference
-- **Years of history**: How many years of historical data to fetch (1-10)
+- **Years of team history**: How many years of a team's historical data to fetch (1-10)
+- **Deep search**: Fetch all teams that participated in the event in the last **Deep Search Years**
+- **Deep Search Years**: How many years of event to fetch for **Deep Search**
 
 ### Example Session
 ```
@@ -85,7 +85,7 @@ You'll be prompted for:
 Event year: 2024
 Event code (e.g., txhou, casj): txhou
 Your team number (optional, press Enter to skip): 7130
-Years of history to fetch (1-10): 3
+Years of team history to fetch (1-5): 3
 
 Fetching teams for 2024txhou...
 Found 32 teams: [118, 1255, 2585, 2587, 2882]...
@@ -101,9 +101,9 @@ Progress: 36/36 teams (100.0%)
 
 The tool generates an Excel file named `{year}{event_code}.xlsx` with the following structure:
 
-| Team | 2022 EPA | 2022 Rank | 2022 Awards | 2023 EPA | 2023 Rank | 2023 Awards | 2024 EPA | 2024 Rank | 2024 Awards |
-|------|----------|-----------|-------------|----------|-----------|-------------|----------|-----------|-------------|
-| 118  | 51.04 | 23 | 2022txirv - Excellence in Engineering Award | 67.82 | 30 | 2023txhou - District Event Winner | 40.98 | 77 | 2024txkat - District Event Winner |
+| Team | 2022 EPA | 2022 Rank | 2022 Awards | 2023 EPA | 2023 Rank | 2023 Awards | 2024 EPA | 2024 Rank | 2024 Awards | Wins | Finalists | Impact | EI |
+|------|----------|-----------|-------------|----------|-----------|-------------|----------|-----------|-------------|-----|-----------|--------|----|
+| 118  | 51.04 | 23 | 2022txirv - Excellence in Engineering Award | 67.82 | 30 | 2023txhou - District Event Winner | 40.98 | 77 | 2024txkat - District Event Winner | 12 | 6 | 5 | 0 |
 
 ## 🔧 Configuration
 

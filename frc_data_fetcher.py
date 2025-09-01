@@ -100,8 +100,8 @@ class FRCDataFetcher:
             self._cache[cache_key] = teams
             return teams
         except Exception as e:
-            logger.error(f"Failed to fetch teams for event {event_key}: {e}")
-            raise RuntimeError(f"Could not fetch teams for event {event_key}. Please check your internet connection and API key.")
+            logger.debug(f"No teams found for event {event_key}: {e}")
+            return []
     
     def get_team_statbotics(self, team_number: int, year: int) -> TeamStats:
         """
@@ -241,7 +241,7 @@ class FRCDataFetcher:
         return items
     
     def export_to_excel(self, event_year: int, event_code: str, 
-                       teams: List[int], years_to_fetch: int,
+                       teams: List[int], years_to_fetch: int, do_deep_search: bool,
                        max_workers: int = 5) -> None:
         """
         Export all team data to Excel file with parallel processing
@@ -254,7 +254,7 @@ class FRCDataFetcher:
             max_workers: Maximum number of parallel threads
         """
         foldername = "output"
-        filename = f"{event_year}{event_code}.xlsx"
+        filename = f"{event_year}{event_code}{'_deep' if do_deep_search else ''}.xlsx"
         fullname = os.path.join(foldername, filename)
         
         # Create output folder if it doesn't exist
@@ -378,8 +378,18 @@ def get_user_input() -> tuple:
             if years_to_fetch < 1 or years_to_fetch > min(5, event_year - 1991):
                 print(f"Please enter a value between 1 and {min(5, event_year - 1991)}")
                 continue
+
+            do_deep_search = input("Deep search? This will fetch all teams that participated in the event in the last few years. Not recommended using this feature (y/n): ").strip().lower() == 'y'
+
+            if do_deep_search:
+                deep_search_years = int(input(f"Years of history to fetch for deep search (1-{min(5, event_year - 1991)}): "))
+                if deep_search_years < 1 or deep_search_years > min(5, event_year - 1991):
+                    print(f"Please enter a value between 1 and {min(5, event_year - 1991)}")
+                    continue
+            else:
+                deep_search_years = 0
             
-            return event_year, event_code, self_team_number, years_to_fetch
+            return event_year, event_code, self_team_number, years_to_fetch, do_deep_search, deep_search_years
             
         except ValueError:
             print("Please enter valid numbers")
@@ -392,7 +402,7 @@ def main():
     """Main execution function"""
     try:
         # Get user input
-        event_year, event_code_list, self_team_number, years_to_fetch = get_user_input()
+        event_year, event_code_list, self_team_number, years_to_fetch, do_deep_search, deep_search_years = get_user_input()
         
         # Initialize fetcher
         config = Config()
@@ -403,9 +413,17 @@ def main():
             event_key = f"{event_year}{event_code}"
             
             # Fetch teams
-            print(f"\nFetching teams for {event_key}...")
-            teams = fetcher.get_event_teams(event_key)
-            print(f"Found {len(teams)} teams: {teams[:5]}{'...' if len(teams) > 5 else ''}")
+            teams = []
+            if do_deep_search:
+                print(f"\nFetching teams for {event_code} (this may take a long time)...")
+                for year in range(event_year - deep_search_years + 1, event_year + 1):
+                    year_event_key = f"{year}{event_code}"
+                    teams.extend(fetcher.get_event_teams(year_event_key))
+                teams = list(set(teams)) # Remove duplicates
+            else:
+                print(f"\nFetching teams for {event_key}...")
+                teams.extend(fetcher.get_event_teams(event_key))
+                print(f"Found {len(teams)} teams: {teams[:5]}{'...' if len(teams) > 5 else ''}")
             
             # Highlight self team if provided
             if self_team_number in teams:
@@ -414,7 +432,7 @@ def main():
                 print(f"✗ Your team ({self_team_number}) is not registered for this event")
             
             # Export data
-            fetcher.export_to_excel(event_year, event_code, teams, years_to_fetch)
+            fetcher.export_to_excel(event_year, event_code, teams, years_to_fetch, do_deep_search)
         
     except KeyboardInterrupt:
         print("\n\nOperation cancelled by user")
