@@ -367,7 +367,7 @@ def get_user_input() -> tuple:
                 print("Please enter a valid year (1992-2025)")
                 continue
             
-            event_code = input("Event code (e.g., txhou, casj): ").strip().lower()
+            event_code = input("Event code (e.g., txhou), for multiple events, separate with commas: ").strip().lower().replace(' ', '').split(',')
             if not event_code:
                 print("Event code cannot be empty")
                 continue
@@ -392,28 +392,29 @@ def main():
     """Main execution function"""
     try:
         # Get user input
-        event_year, event_code, self_team_number, years_to_fetch = get_user_input()
+        event_year, event_code_list, self_team_number, years_to_fetch = get_user_input()
         
         # Initialize fetcher
         config = Config()
         fetcher = FRCDataFetcher(config)
         
-        # Construct full event key
-        event_key = f"{event_year}{event_code}"
-        
-        # Fetch teams
-        print(f"\nFetching teams for {event_key}...")
-        teams = fetcher.get_event_teams(event_key)
-        print(f"Found {len(teams)} teams: {teams[:5]}{'...' if len(teams) > 5 else ''}")
-        
-        # Highlight self team if provided
-        if self_team_number in teams:
-            print(f"✓ Your team ({self_team_number}) is registered for this event")
-        elif self_team_number > 0:
-            print(f"✗ Your team ({self_team_number}) is not registered for this event")
-        
-        # Export data
-        fetcher.export_to_excel(event_year, event_code, teams, years_to_fetch)
+        for event_code in event_code_list:
+            # Construct full event key
+            event_key = f"{event_year}{event_code}"
+            
+            # Fetch teams
+            print(f"\nFetching teams for {event_key}...")
+            teams = fetcher.get_event_teams(event_key)
+            print(f"Found {len(teams)} teams: {teams[:5]}{'...' if len(teams) > 5 else ''}")
+            
+            # Highlight self team if provided
+            if self_team_number in teams:
+                print(f"✓ Your team ({self_team_number}) is registered for this event")
+            elif self_team_number > 0:
+                print(f"✗ Your team ({self_team_number}) is not registered for this event")
+            
+            # Export data
+            fetcher.export_to_excel(event_year, event_code, teams, years_to_fetch)
         
     except KeyboardInterrupt:
         print("\n\nOperation cancelled by user")
