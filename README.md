@@ -79,6 +79,17 @@ You'll be prompted for:
 - **Deep search**: Fetch all teams that participated in the event in the last **Deep Search Years**
 - **Deep Search Years**: How many years of event to fetch for **Deep Search**
 
+### User Interface
+
+Run the script from the command line:
+```bash
+python web_server.py
+```
+
+Will create a server running on http://localhost:7130
+
+![server image](server.png)
+
 ### Example Session
 ```
 === FRC Event Data Fetcher ===
@@ -129,12 +140,16 @@ self._cache = {}  # In-memory cache for API responses
 
 ```
 frc-data-fetcher/
-├── frc_data_fetcher.py    # Main script
-├── requirements.txt        # Python dependencies
-├── .env                   # Environment variables (create this)
+├── output/               # Generated Excel files
+├── template/             # HTML Template for web server
+├── .env                  # Environment variables (create this)
 ├── .gitignore            # Git ignore file
+├── frc_data_fetcher.py   # Main script
+├── LICENSE               # MIT License file
+├── requirements.txt      # Python dependencies
 ├── README.md             # Project documentation
-└── output/               # Generated Excel files
+├── server.png            # Screenshot of the web server
+└── web_server.py         # Web server script
 ```
 
 ## 🛠️ Troubleshooting
@@ -199,7 +214,6 @@ python -m pytest tests/
 - [ ] Integration with more data sources
 - [ ] Customizable export formats (CSV, JSON)
 - [ ] Team comparison visualizations
-- [ ] Web interface using Flask/FastAPI
 
 ## 📄 License
 
